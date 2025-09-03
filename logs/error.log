@@ -52,3 +52,4 @@
 2025-08-27 04:23:33 Error: [2] foreach() argument must be of type array|object, null given - C:\xampp\htdocs\Human-Resources-Management-System-BSIS-02\competencies.php:151
 2025-08-27 04:23:33 Error: [2] Undefined variable $jobRoles - C:\xampp\htdocs\Human-Resources-Management-System-BSIS-02\competencies.php:162
 2025-08-27 04:23:33 Error: [2] foreach() argument must be of type array|object, null given - C:\xampp\htdocs\Human-Resources-Management-System-BSIS-02\competencies.php:162
+2025-09-02 13:05:54 Error: [2] Undefined variable $stmt - C:\xampp\htdocs\Human-Resources-Management-System-BSIS-02\save_cycle.php:15

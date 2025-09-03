@@ -53,7 +53,7 @@ require_once 'dp.php';
 
     <div class="container">
       <br><br><br>
-      <h1>Competencies</h1>
+      <h1 class="section-title">Competencies</h1>
       <button id="addBtn" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Add Competency</button>
 
       <!-- Filter -->
@@ -139,6 +139,7 @@ require_once 'dp.php';
             <label class="form-label">Job Role</label>
             <select class="form-select" name="job_role_id" id="editJobRoleSelect" required></select>
           </div>
+
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Update</button>
@@ -207,8 +208,8 @@ function loadCompetencies(roleId = "") {
             <td>${c.description ?? ''}</td>
             <td>${c.role ?? ''}</td>
             <td>
-              <button class="btn btn-sm btn-warning" onclick="editCompetency(${c.competency_id})">Edit</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteCompetency(${c.competency_id})">Delete</button>
+              <button class="btn btn-sm btn-warning" onclick="editCompetency(${c.competency_id})"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCompetency(${c.competency_id})"><i class="fas fa-trash"></i></button>
             </td>
           </tr>`;
       });
@@ -217,36 +218,30 @@ function loadCompetencies(roleId = "") {
 
 // Edit competency (Bootstrap 5)
 function editCompetency(id) {
-  fetch(`get_competencies.php?id=${id}`)
-    .then(res => res.json())
-    .then(c => {
-      // Fill form fields
-      document.getElementById('editCompetencyId').value = c.competency_id;
-      document.getElementById('editCompetencyName').value = c.name || '';
-      document.getElementById('editCompetencyDesc').value = c.description || '';
-
-      // Show modal immediately
-      const editModal = new bootstrap.Modal(document.getElementById('editCompetencyModal'));
-      editModal.show();
-
-      // Load roles
-      fetch('get_roles.php')
+    fetch(`get_competencies.php?id=${id}`)
         .then(res => res.json())
-        .then(data => {
-          let select = document.getElementById('editJobRoleSelect');
-          select.innerHTML = '<option value="">-- Select Role --</option>';
-          data.forEach(r => {
-            let selected = (String(r.job_role_id) === String(c.job_role_id)) ? "selected" : "";
-            select.innerHTML += `<option value="${r.job_role_id}" ${selected}>${r.title}</option>`;
-          });
+        .then(c => {
+            document.getElementById('editCompetencyId').value = c.competency_id;
+            document.getElementById('editCompetencyName').value = c.name || '';
+            document.getElementById('editCompetencyDesc').value = c.description || '';
+
+            // Load roles
+            fetch('get_roles.php')
+              .then(res => res.json())
+              .then(roles => {
+                  const roleSelect = document.getElementById('editJobRoleSelect');
+                  roleSelect.innerHTML = '<option value="">-- Select Role --</option>';
+                  roles.forEach(r => {
+                      const selected = r.job_role_id == c.job_role_id ? 'selected' : '';
+                      roleSelect.innerHTML += `<option value="${r.job_role_id}" ${selected}>${r.title}</option>`;
+                  });
+              });
+
+            new bootstrap.Modal(document.getElementById('editCompetencyModal')).show();
         })
-        .catch(err => console.error('get_roles error:', err));
-    })
-    .catch(err => {
-      console.error('get_competency error:', err);
-      alert('Failed to load competency details.');
-    });
+        .catch(err => console.error("Failed to load competency:", err));
 }
+
 // Update competency
 document.getElementById('editCompetencyForm').addEventListener('submit', function(e) {
   e.preventDefault();
@@ -256,26 +251,20 @@ document.getElementById('editCompetencyForm').addEventListener('submit', functio
   const modalEl = document.getElementById('editCompetencyModal');
   const modalInstance = bootstrap.Modal.getInstance(modalEl);
 
-  // Disable button while saving
   submitBtn.disabled = true;
   submitBtn.textContent = "Updating...";
 
   let formData = new FormData(form);
 
-  fetch('update_competency.php', {
-    method: 'POST',
-    body: formData
-  })
+  fetch('update_competency.php', { method: 'POST', body: formData })
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      // ✅ Success
       alert("Updated successfully!");
       if (modalInstance) modalInstance.hide();
-      loadCompetencies(); // Refresh list
+      loadCompetencies();
       form.reset();
     } else {
-      // ❌ Server returned error
       alert("Error: " + (data.message || "Update failed"));
     }
   })
@@ -284,12 +273,10 @@ document.getElementById('editCompetencyForm').addEventListener('submit', functio
     alert("An unexpected error occurred while updating.");
   })
   .finally(() => {
-    // Re-enable button
     submitBtn.disabled = false;
     submitBtn.textContent = "Update";
   });
 });
-
 
 // Delete competency
 function deleteCompetency(id) {

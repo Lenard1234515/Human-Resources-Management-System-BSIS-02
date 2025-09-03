@@ -1,4 +1,5 @@
 <?php
+// get_competencies_by_role.php
 header('Content-Type: application/json');
 include __DIR__ . '/db_connect.php';
 

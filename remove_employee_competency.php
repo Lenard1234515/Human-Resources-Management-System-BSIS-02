@@ -1,21 +1,28 @@
 <?php
+// remove_employee_competency.php
 header('Content-Type: application/json');
-require_once 'config.php'; // Contains $conn (PDO)
+require_once 'config.php'; // PDO
 
-// Get POST parameters
-$employee_id = isset($_POST['employee_id']) ? (int) $_POST['employee_id'] : 0;
+$employee_id   = isset($_POST['employee_id']) ? (int) $_POST['employee_id'] : 0;
 $competency_id = isset($_POST['competency_id']) ? (int) $_POST['competency_id'] : 0;
+$cycle_id      = isset($_POST['cycle_id']) ? (int) $_POST['cycle_id'] : 0;
 
-if ($employee_id <= 0 || $competency_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid employee or competency ID.']);
+if ($employee_id <= 0 || $competency_id <= 0 || $cycle_id <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid employee, competency, or cycle ID.']);
     exit;
 }
 
 try {
-    $stmt = $conn->prepare("DELETE FROM employee_competencies WHERE employee_id = :employee_id AND competency_id = :competency_id");
+    $stmt = $conn->prepare("
+        DELETE FROM employee_competencies
+        WHERE employee_id = :employee_id
+          AND competency_id = :competency_id
+          AND cycle_id = :cycle_id
+    ");
     $stmt->execute([
-        ':employee_id' => $employee_id,
-        ':competency_id' => $competency_id
+        ':employee_id'   => $employee_id,
+        ':competency_id' => $competency_id,
+        ':cycle_id'      => $cycle_id
     ]);
 
     if ($stmt->rowCount() > 0) {
@@ -26,4 +33,3 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-?>
